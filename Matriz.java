@@ -8,6 +8,7 @@ public class Matriz {
     private int k[][];
     private int e[][];
     private int cr[][];
+    private int usados[][];
     private int dibujo[][];
     private int colorFondo;
     private static final int USADO = 999999999;
@@ -28,6 +29,11 @@ public class Matriz {
     private int[][] filas;
     private int[][] columnas;
     private int meteoritosElegidos [];
+
+    /**
+     * Inicializa todos los atributos de la clase que sean matrices
+     * @param archivo -El nombre del archivo que se va a utilizar
+     */
     public void iniciarImagen(String archivo){
         entrada = archivo;
         i = new Imagen(entrada);
@@ -36,17 +42,17 @@ public class Matriz {
         e = i.getMatriz();
         cr = i.getMatriz();
         dibujo = i.getMatriz();
+        usados = new int[m.length][m[0].length];
         colorFondo = m[0][0];
         copia = new int[m.length][m[0].length];
         copia2 = new int[m.length][m[0].length];
         b = new int[m.length][m[0].length];
     }
     /**
-     * METODO APP, ES EL QUE EJECUTA
+     * Saca los atributos de los diferentes meteoritos presentes en la imagen por aplicando diferentes metodos de la clase Matriz por medio de for loops
      *
-     * @return
      */
-    public int[][] crearMatriz() {
+    public void crearMatriz() {
         int i = 0;
         int x = 0;
         int u = 1;
@@ -163,8 +169,12 @@ public class Matriz {
             meteoritos[p].setPeso(pesoMeteoritos[p]);
             meteoritos[p].setValor(manchasMeteoritos[p]);
         }
-        return copia;
+
     }
+
+    /**
+     * LE PONE UN PONE UN PUNTERO EN EL CENTRO DE LOS METEORITOS QUE SE ULTILIZARON.
+     */
     public void ponerX (){
         for(int x = 0; x < meteoritosElegidos.length; x++){
             for(int i = 0; i < meteoritos.length; i++){
@@ -172,7 +182,7 @@ public class Matriz {
                     int fila = meteoritos[i].getFilaC();
                     int columna = meteoritos[i].getColumnaC();
                     dibujo[fila][columna] = NEGRO;
-                    for(int h = 1; h <= 4; h++){
+                    for(int h = 1; h <= 3; h++){
                         dibujo[fila+h][columna] = NEGRO;
                         dibujo[fila-h][columna] = NEGRO;
                         dibujo[fila][columna-h] = NEGRO;
@@ -194,12 +204,12 @@ public class Matriz {
     }
 
     /**
-     * Re
-     *
-     * @param f     -la fila en la que se encuentra
-     * @param c     -la columna en la que se encuentra
-     * @param color -el color del que se quieren buscar iguales
-     * @return -SE CREA UN ARRAY DE 8 POSICIONES, CADA POSICION REPRESENTA UN LUGAR ALREDEDOR DE UN PUNTO, SI TIENE EL VALOR DE 0, ES QUE ESE PUNTO NO TIENE SIMILARES EN ESA DIRECCION, SI EL VALOR ES 1, SIGNIFICA QUE SI.
+     * EN UN PUNTO DETERMINADO EN UNA MATRIZ, BUSCA HACIA LAS 8 DIRECCIONES, SI ALREDEDOR DE ESE PUNTO HAY PUNTOS QUE TENGAN EL MISMO COLOR QUE UN COLOR ESPECÍFICO
+     * @param f -La fila en la que se encuentra un punto dentro de dada matriz
+     * @param c -La columna en la que se encuentra un punto dentro de dada matriz
+     * @param color -Es el color del que se buscan iguales
+     * @param matriz -Es la matriz en la que se realiza la busca
+     * @return devuelve un arreglo de 8 posiciones, del cual, cada posicion representa una direccion de determinado punto en una matriz, si la posicion tiene un 1, significa que si tiene el color del parametro en esa direccion
      */
     private int[] buscarIguales(int f, int c, int color, int[][] matriz) {
         int p[] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -246,6 +256,13 @@ public class Matriz {
         return p;
     }
 
+    /**
+     * EN UN PUNTO DETERMINADO DE LA MATRIZ copia, BUSCA HACIA LAS 8 DIRECCIONES, SI ALREDEDOR DE ESE PUNTO HAY PUNTOS QUE TENGAN EL MISMO COLOR QUE UN COLOR ESPECÍFICO
+     * @param f -La fila en la que se encuentra un punto dentro de dada matriz
+     * @param c -La columna en la que se encuentra un punto dentro de dada matriz
+     * @return devuelve un arreglo de 8 posiciones, del cual, cada posicion representa una direccion de determinado punto de una mancha en una matriz, si la posicion tiene un 1, significa que si tiene puntos de una misma mancha en esa direccion
+     *
+     */
     private int[] buscarIgualesMancha(int f, int c) {
         int p[] = {0, 0, 0, 0, 0, 0, 0, 0};
         if (esPosicionValida(f - 1, c)) {
@@ -291,47 +308,57 @@ public class Matriz {
         return p;
     }
 
+    /**
+     * Metodo recursivo que va identificando los puntos del borde de todos los meteoritos de la imagen, utilizando el metodo buscarIguales para identificar hacia que posicion hay puntos del borde y hacer una cadena.
+     * @param f -fila del punto
+     * @param c -columna del punto
+     */
     private void borde(int f, int c) {
         int color = m[f][c];
         int[] iguales = buscarIguales(f, c, color, m);
-        if (esPosicionValida(f, c) && m[f][c] == color && m[f][c] != USADO) {
+        if (esPosicionValida(f, c) && m[f][c] == color && usados[f][c] != USADO) {
             copia[f][c] = BORDE;
             if (iguales[0] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f - 1, c);
             }
             if (iguales[1] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f + 1, c);
             }
             if (iguales[2] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f, c + 1);
             }
             if (iguales[3] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f, c - 1);
             }
             if (iguales[4] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f - 1, c - 1);
             }
             if (iguales[5] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f - 1, c + 1);
             }
             if (iguales[6] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f + 1, c - 1);
             }
             if (iguales[7] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 borde(f + 1, c + 1);
             }
             copia[f][c] = BORDE;
         }
     }
-
+    /**
+     * Metodo recursivo con una funcionalidad muy similar al metodo borde, que lo que hace es contar la cantidad de meteoritos que hay en la imagen
+     * @param f -fila del punto
+     * @param c -columna del punto
+     * @param numero - un numero entero que cambiando por medio de un for
+     */
     private void numMeteoritos(int f, int c, int numero) {
         int[] iguales = buscarIguales(f, c, -1, copia);
         if (esPosicionValida(f, c) && copia[f][c] == -1 && k[f][c] != USADO) {
@@ -372,6 +399,11 @@ public class Matriz {
         }
     }
 
+    /**
+     * Metodo recursivo que identifica la cantidad de pixeles que tiene determinado meteorito al sumarle 1 al atributo peso cada vez que se encuentra un pixel nuevo
+     * @param f -fila del punto
+     * @param c -columna del punto
+     */
     private void crearPeso(int f, int c) {
         int[] iguales = buscarIguales(f, c, -1, copia);
         if (esPosicionValida(f, c) && copia[f][c] == -1 && e[f][c] != USADO) {
@@ -411,46 +443,55 @@ public class Matriz {
         }
     }
 
+    /**
+     * Metodo recursivo que identifica a los puntos de determinada imagen como manchas, si lo son
+     * @param f -fila de un punto
+     * @param c -columna del punto
+     */
     private void mancha(int f, int c) {
         int[] iguales = buscarIgualesMancha(f, c);
-        if (esPosicionValida(f, c) && copia[f][c] == -1 && m[f][c] != USADO) {
+        if (esPosicionValida(f, c) && copia[f][c] == -1 && usados[f][c] != USADO) {
             copia[f][c] = MANCHA;
             if (iguales[0] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f - 1, c);
             }
             if (iguales[1] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f + 1, c);
             }
             if (iguales[2] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f, c + 1);
             }
             if (iguales[3] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f, c - 1);
             }
             if (iguales[4] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f - 1, c - 1);
             }
             if (iguales[5] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f - 1, c + 1);
             }
             if (iguales[6] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f + 1, c - 1);
             }
             if (iguales[7] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 mancha(f + 1, c + 1);
             }
             copia[f][c] = MANCHA;
         }
     }
-
+    /**
+     * Metodo recursivo que cuenta la cantidad de manchas que tiene determinado meteorito, al verificar punto por punto si son parte de una mancha
+     * @param f - fila del punto
+     * @param c -columna del punto
+     */
     private void contarManchas(int f, int c) {
         int[] iguales = buscarIguales(f, c, MANCHA, copia);
         if (esPosicionValida(f, c) && copia[f][c] == MANCHA && b[f][c] != USADO) {
@@ -489,104 +530,166 @@ public class Matriz {
         }
     }
 
+    /**
+     * Metodo recursivo que identifica como fondo de la matriz de una imagen a los pixeles que lo sean, pero solo busca en cuatro direcciones, arriba, abajo y a los lados
+     * @param f -fila del punto
+     * @param c -columna del punto
+     */
     private void fondo(int f, int c) {
         int[] iguales = buscarIguales(f, c, m[f][c], m);
-        if (esPosicionValida(f, c) && m[f][c] != USADO && m[f][c] == colorFondo) {
+        if (esPosicionValida(f, c) && usados[f][c] != USADO && m[f][c] == colorFondo) {
             copia[f][c] = FONDO;
             if (iguales[0] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 fondo(f - 1, c);
             }
             if (iguales[1] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 fondo(f + 1, c);
             }
             if (iguales[2] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 fondo(f, c + 1);
             }
             if (iguales[3] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 fondo(f, c - 1);
             }
             copia[f][c] = FONDO;
         }
     }
-
+    /**
+     * Metodo recursivo que identifica como cento de un meteorito de la matriz de una imagen a los pixeles que lo sean, al buscar en cuatro direcciones si se encuentran puntos iguales a el pero solo busca arriba, abajo y a los lados
+     * @param f -fila del punto
+     * @param c -columna del punto
+     */
     private void centro(int f, int c) {
         int[] iguales = buscarIguales(f, c, m[f][c], m);
-        if (esPosicionValida(f, c) && m[f][c] != USADO) {
+        if (esPosicionValida(f, c) && usados[f][c] != USADO) {
             copia[f][c] = CENTRO_ROCA;
             if (iguales[0] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 centro(f - 1, c);
             }
             if (iguales[1] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 centro(f + 1, c);
             }
             if (iguales[2] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 centro(f, c + 1);
             }
             if (iguales[3] == 1) {
-                m[f][c] = USADO;
+                usados[f][c] = USADO;
                 centro(f, c - 1);
             }
             copia[f][c] = CENTRO_ROCA;
         }
     }
 
-    public int mayor(int[] matriz) {
-        int numeroMayor = matriz[0];
-        for (int i = 0; i < matriz.length ; i++) {
-            if (matriz[i] > numeroMayor) {
-                numeroMayor = matriz[i];
+    /**
+     * En determinado arreglo de numeros enteros busca el numero mayor
+     * @param array -el arreglo en el que se busca
+     * @return el numero mayor del arreglo
+     */
+    public int mayor(int[] array) {
+        int numeroMayor = array[0];
+        for (int i = 0; i < array.length ; i++) {
+            if (array[i] > numeroMayor) {
+                numeroMayor = array[i];
             }
         }
         return numeroMayor;
     }
-    public int menor(int[] matriz) {
-        int numeroMenor = matriz[0];
-        for (int i = 0; i < matriz.length ; i++) {
-            if (matriz[i] < numeroMenor) {
-                numeroMenor = matriz[i];
+    /**
+     * En determinado arreglo de numeros enteros busca el numero menor
+     * @param array -el arreglo en el que se busca
+     * @return el numero menor del arreglo
+     */
+    public int menor(int[] array) {
+        int numeroMenor = array[0];
+        for (int i = 0; i < array.length ; i++) {
+            if (array[i] < numeroMenor) {
+                numeroMenor = array[i];
             }
         }
         return numeroMenor;
     }
 
-
+    /**
+     * Modifica los ids de los meteoritos que fueron seleccionados
+     * @param meteoritos -arreglo de numeros enteros
+     */
     public void setMeteoritosSeleccionados(int [] meteoritos){
         this.meteoritosElegidos = meteoritos;
     }
+
+    /**
+     * Devuelve la imagen de los meteoritos con los mismos ya seleccionados con el puntero
+     * @return
+     */
     public int [][] getDibujo(){
         return dibujo;
     }
+
+    /**
+     * Devuelve la matriz copia, atributo de la clase
+     * @return matriz copia
+     */
     public int[][] getCopia(){
         return copia;
     }
+
+    /**
+     * Devuelve la matriz copia2, atributo de la clase
+     * @return matriz copia2
+     */
     public int[][] getCopia2(){
         return copia2;
     }
+    /**
+     * Devuelve el atributo cantidadMeteoritos
+     * @return cantidadMeteoritos
+     */
     public int getCantidadMeteoritos(){
         return cantidadMeteoritos;
     }
-    public int getCantidadMachas(){
-        return cantidadManchas;
-    }
+
+    /**
+     * Devuelve el atributo pesoMeteoritos, que es un arreglo con el peso de cada meteorito
+     * @return pesoMeteoritos
+     */
     public int[] getPesoMeteoritos(){
         return pesoMeteoritos;
     }
+
+    /**
+     * Devuelve el atributo manchasMeteoritos, que es un arreglo que contiene la cantidad de manchas de los meteoritos de una imagen
+     * @return manchasMeteoritos
+     */
     public int[] getManchasMeteoritos(){
         return manchasMeteoritos;
     }
+
+    /**
+     * Devuelve el atributo filas, que es un arreglo que contiene las filas que contiene cada meteorito
+     * @return filas
+     */
     public int [][] getFilas(){
         return filas;
     }
+    /**
+     * Devuelve el atributo columnas, que es un arreglo que contiene las filas que contiene cada meteorito
+     * @return columnas
+     */
     public int [][] getColumnas(){
         return columnas;
     }
+
+    /**
+     * Devuelve el atributo, meteoritos, que es un arreglo que contiene objetos de la clase Meteorito
+     * @return meteoritos
+     */
     public Meteorito[] getMeteoritos(){
         return meteoritos;
     }

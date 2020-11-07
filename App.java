@@ -1,9 +1,11 @@
 
 /**
- * Write a description of class App here.
+ * La clase App ejecuta el programa para la selección de los meteoritos en la imagen dada.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Sabrina Brenes
+ * @author Gabriel Bonilla 
+ * @author Johana Wu
+ * @version (06/11, final)
  */
 public class App{
     private Matriz matriz = new Matriz();
@@ -13,6 +15,11 @@ public class App{
     private Meteorito [] meteoritos;
     private int meteoritosSeleccionados [];
     private int dibujoFinal [][];
+
+    /**
+     * Efectúa: ejecuta todo el programa de la selcción de los meteoritos.
+     * @param archivo - el nombre de la imagen que se desea usar.
+     */
     public void ejecutar(String archivo){
         matriz.iniciarImagen(archivo);
         interfaz.bienvenida();
@@ -28,5 +35,7 @@ public class App{
         dibujoFinal = matriz.getDibujo();
         interfaz.mostrarSeleccion(dibujoFinal);
         resultados.texto("ANALISIS DE LOS SCANERES DE LA REDWIND", meteoritos, nave);
+        String hilera = resultados.mostrar(meteoritos, nave);
+        interfaz.mostrarInventarioDeLaNave(hilera);
     }
 }
